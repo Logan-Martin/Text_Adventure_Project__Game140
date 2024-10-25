@@ -155,7 +155,7 @@ void UpdateGame(PlayerState& playerState, WorldState& worldState)
 				currentRoom.HasKey = false;
 			}
 			else {
-				printf("There is no key in this room. \n");
+				printf("There is no key in this room.  \n");
 			}
 		}
 		else
