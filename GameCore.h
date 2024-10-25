@@ -6,20 +6,25 @@ struct PlayerState
 {
 	int CurrentRoomIndex;
 	std::string DesiredExit;
+	std::string DesiredPickUp;
 
 	bool WantsToExit;
 	bool WantsToLook;
+	bool HasKey;
+
 };
 
 struct RoomExitData {
 	std::string Name;
 	int TargetRoomIndex;
+	bool Locked;
 };
 
 struct RoomData {
 	std::string Name;
 	std::string Description;
 	std::vector<RoomExitData> Exits;
+	bool HasKey;
 };
 	
 struct WorldState
