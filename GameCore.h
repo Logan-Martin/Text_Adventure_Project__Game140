@@ -5,6 +5,8 @@
 struct PlayerState
 {
 	int CurrentRoomIndex;
+	std::string DesiredExit;
+
 	bool WantsToExit;
 	bool WantsToLook;
 };

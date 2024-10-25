@@ -42,6 +42,7 @@ void InitializeGame(PlayerState& playerState, WorldState& worldState)
 void GetInput(PlayerState& playerState, const WorldState& worldState)
 {
 	playerState.WantsToLook = false;
+	playerState.DesiredExit = "";
 
 	printf("What do you do?\n");
 	printf("> ");
@@ -57,6 +58,10 @@ void GetInput(PlayerState& playerState, const WorldState& worldState)
 	else if (command.Verb == "look")
 	{
 		playerState.WantsToLook = true;
+	}
+	else if (command.Verb == "go")
+	{
+		playerState.DesiredExit = command.Parameter;
 	}
 	else
 	{
