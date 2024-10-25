@@ -94,6 +94,24 @@ void RenderGame(const PlayerState& playerState, const WorldState& worldState)
 
 void UpdateGame(PlayerState& playerState, WorldState& worldState)
 {
+	RoomData currentRoom = worldState.Rooms[playerState.CurrentRoomIndex];
+	if (playerState.DesiredExit != "") {
+
+		bool foundExit = false;
+
+		for (unsigned int i = 0; i < currentRoom.Exits.size(); ++i) {
+			if (playerState.DesiredExit == currentRoom.Exits[i].Name) {
+				foundExit = true;
+				playerState.CurrentRoomIndex = currentRoom.Exits[i].TargetRoomIndex;
+				playerState.WantsToLook = true;
+			}
+		}
+
+		if (foundExit == false) {
+			printf("I could not find an exit called '%s' \n\n",playerState.DesiredExit.c_str());
+		}
+
+	}
 
 }
 
