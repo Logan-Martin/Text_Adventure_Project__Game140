@@ -8,7 +8,7 @@ RoomData CreateRoom(const std::string& inName, const std::string& inDesciption, 
 	room.Description = inDesciption;
 	room.HasKey = inHasKey;
 	room.HasCoin = inHasCoin;
-	return room;
+	return room; 
 }
 
 void AddExitToRoom(RoomData& roomToEdit, const std::string& exitName, int targetRoomIndex, bool isLocked, const std::string& inItemNeededToUnlockDoor) {
