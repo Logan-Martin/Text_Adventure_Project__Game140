@@ -20,25 +20,35 @@ void AddExitToRoom(RoomData& roomToEdit, const std::string& exitName, int target
 
 void InitializeGame(PlayerState& playerState, WorldState& worldState)
 {
+	printf("\nWelcome to The Haunted House!");
+	printf("\nAs you enter, the door slams behind you. Find a way out!");
+	printf("\n");
+
 	playerState.WantsToLook = true;
-	playerState.CurrentRoomIndex = 2;
+	playerState.CurrentRoomIndex = 0;
 	playerState.HasKey = false;
 
 	// Index 0:
-	RoomData room1 = CreateRoom("Room1", "Room 1 Description", false);
-	AddExitToRoom(room1,"room2",1,false);
+	RoomData room1 = CreateRoom("entrance", "There's a nice coat rack and a creaky wooden floor. Not much here.", false);
+	AddExitToRoom(room1,"hallway",1,false);
 	worldState.Rooms.push_back(room1);
 
 	// Index 1:
-	RoomData room2 = CreateRoom("Room2", "Room 2 Description", false);
-	AddExitToRoom(room2, "room1", 0,false);
-	AddExitToRoom(room2, "room3", 2,false);
+	RoomData room2 = CreateRoom("hallway", "Some blurry pictures hang on the wall.", false);
+	AddExitToRoom(room2, "entrance", 0,false);
+	AddExitToRoom(room2, "kitchen", 2,false);
 	worldState.Rooms.push_back(room2);
 
 	// Index 2:
-	RoomData room3 = CreateRoom("Room3", "Room 3 Description", true);
-	AddExitToRoom(room3, "room2", 1,true);
+	RoomData room3 = CreateRoom("kitchen", "Dirty dishes are piled up, it looks like people haven't lived here in a while.", true);
+	AddExitToRoom(room3, "hallway", 1,false);
+	AddExitToRoom(room3, "livingroom", 3, true);
 	worldState.Rooms.push_back(room3);
+
+	// Index 3:
+	RoomData room4 = CreateRoom("livingroom", "There's an old TV playing static, a faded green couch, and not much else.", false);
+	AddExitToRoom(room4, "kitchen", 2, false);
+	worldState.Rooms.push_back(room4);
 }
 
 void GetInput(PlayerState& playerState, const WorldState& worldState)
@@ -47,7 +57,7 @@ void GetInput(PlayerState& playerState, const WorldState& worldState)
 	playerState.DesiredExit = "";
 	playerState.DesiredPickUp = "";
 
-	printf("What do you do?\n");
+	printf("What do you do? (Type 'help' for a list of commands.) \n");
 	printf("> ");
 	TextAdventureCommand command = ParseAdventureCommand();
 	if (command.Verb == "quit")
@@ -56,7 +66,7 @@ void GetInput(PlayerState& playerState, const WorldState& worldState)
 	}
 	else if (command.Verb == "help")
 	{
-		printf("Command List: look, quit, go [place], get key, sleep\n");
+		printf("Command List: look, quit, go [place], get [item]\n");
 	}
 	else if (command.Verb == "look")
 	{
@@ -83,9 +93,9 @@ void RenderGame(const PlayerState& playerState, const WorldState& worldState)
 
 	if (playerState.WantsToLook == true) {
 		RoomData currentRoom = worldState.Rooms[playerState.CurrentRoomIndex];
-		printf("==================================== \n");
+		printf("\n==================================== \n");
 		printf("Location: %s \n", currentRoom.Name.c_str());
-		printf("%s \n\n", currentRoom.Description.c_str());
+		printf("Description: %s \n\n", currentRoom.Description.c_str());
 
 		if (currentRoom.HasKey) {
 			printf("There is a key in this room! \n\n");
@@ -151,6 +161,7 @@ void UpdateGame(PlayerState& playerState, WorldState& worldState)
 		if (playerState.DesiredPickUp == "key") {
 			if (currentRoom.HasKey == true ) {
 				printf("You picked up a key!");
+				printf("\n");
 				playerState.HasKey = true;
 				currentRoom.HasKey = false;
 			}
