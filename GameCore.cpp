@@ -61,19 +61,19 @@ void InitializeGame(PlayerState& playerState, WorldState& worldState)
 	worldState.Rooms.push_back(room5);
 
 	// Index 5:
-	RoomData room6 = CreateRoom("upstairs", "", false, false);
+	RoomData room6 = CreateRoom("upstairs", "An open empty area leading to different rooms. Going back downstairs goes to the livingroom.", false, false);
 	AddExitToRoom(room6, "livingroom", 3, false, "none");
 	AddExitToRoom(room6, "bathroom", 6, false, "none");
 	AddExitToRoom(room6, "bedroom", 7, false, "none");
 	worldState.Rooms.push_back(room6);
 
 	// Index 6:
-	RoomData room7 = CreateRoom("bathroom", "", false, true);
+	RoomData room7 = CreateRoom("bathroom", "The mirror above the sink has cracks in it, but the toilet looks clean.", false, true);
 	AddExitToRoom(room7, "upstairs", 5, false, "none");
 	worldState.Rooms.push_back(room7);
 
 	// Index 7:
-	RoomData room8 = CreateRoom("bedroom", "", false, true);
+	RoomData room8 = CreateRoom("bedroom", "A big bed fills the room. There's some furniture here and there.", false, true);
 	AddExitToRoom(room8, "upstairs", 5, false, "none");
 	worldState.Rooms.push_back(room8);
 
