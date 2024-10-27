@@ -11,6 +11,7 @@ struct PlayerState
 	bool WantsToExit;
 	bool WantsToLook;
 	bool HasKey;
+	int CoinCount;
 
 };
 
@@ -18,6 +19,7 @@ struct RoomExitData {
 	std::string Name;
 	int TargetRoomIndex;
 	bool Locked;
+	std::string ItemNeededToUnlockDoor;
 };
 
 struct RoomData {
@@ -25,6 +27,7 @@ struct RoomData {
 	std::string Description;
 	std::vector<RoomExitData> Exits;
 	bool HasKey;
+	bool HasCoin;
 };
 	
 struct WorldState

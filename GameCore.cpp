@@ -2,19 +2,21 @@
 #include "CommandParser.h"
 #include <stdio.h>
 
-RoomData CreateRoom(const std::string& inName, const std::string& inDesciption, bool inHasKey) {
+RoomData CreateRoom(const std::string& inName, const std::string& inDesciption, bool inHasKey, bool inHasCoin) {
 	RoomData room = {};
 	room.Name = inName;
 	room.Description = inDesciption;
 	room.HasKey = inHasKey;
+	room.HasCoin = inHasCoin;
 	return room;
 }
 
-void AddExitToRoom(RoomData& roomToEdit, const std::string& exitName, int targetRoomIndex, bool isLocked) {
+void AddExitToRoom(RoomData& roomToEdit, const std::string& exitName, int targetRoomIndex, bool isLocked, const std::string& inItemNeededToUnlockDoor) {
 	RoomExitData exit = {};
 	exit.Name = exitName;
 	exit.TargetRoomIndex = targetRoomIndex;
 	exit.Locked = isLocked;
+	exit.ItemNeededToUnlockDoor = inItemNeededToUnlockDoor;
 	roomToEdit.Exits.push_back(exit);
 }
 
@@ -27,28 +29,54 @@ void InitializeGame(PlayerState& playerState, WorldState& worldState)
 	playerState.WantsToLook = true;
 	playerState.CurrentRoomIndex = 0;
 	playerState.HasKey = false;
+	playerState.CoinCount = 0;
 
 	// Index 0:
-	RoomData room1 = CreateRoom("entrance", "There's a nice coat rack and a creaky wooden floor. Not much here.", false);
-	AddExitToRoom(room1,"hallway",1,false);
+	RoomData room1 = CreateRoom("entrance", "There's a nice coat rack and a creaky wooden floor. Not much here.", false, false);
+	AddExitToRoom(room1,"hallway",1,false,"none");
 	worldState.Rooms.push_back(room1);
 
 	// Index 1:
-	RoomData room2 = CreateRoom("hallway", "Some blurry pictures hang on the wall.", false);
-	AddExitToRoom(room2, "entrance", 0,false);
-	AddExitToRoom(room2, "kitchen", 2,false);
+	RoomData room2 = CreateRoom("hallway", "Some blurry pictures hang on the wall.", false, false);
+	AddExitToRoom(room2, "entrance", 0,false, "none");
+	AddExitToRoom(room2, "kitchen", 2,false, "none");
 	worldState.Rooms.push_back(room2);
 
 	// Index 2:
-	RoomData room3 = CreateRoom("kitchen", "Dirty dishes are piled up, it looks like people haven't lived here in a while.", true);
-	AddExitToRoom(room3, "hallway", 1,false);
-	AddExitToRoom(room3, "livingroom", 3, true);
+	RoomData room3 = CreateRoom("kitchen", "Dirty dishes are piled up, it looks like people haven't lived here in a while.", true, false);
+	AddExitToRoom(room3, "hallway", 1,false, "none");
+	AddExitToRoom(room3, "livingroom", 3, true, "key");
 	worldState.Rooms.push_back(room3);
 
 	// Index 3:
-	RoomData room4 = CreateRoom("livingroom", "There's an old TV playing static, a faded green couch, and not much else.", false);
-	AddExitToRoom(room4, "kitchen", 2, false);
+	RoomData room4 = CreateRoom("livingroom", "There's an old TV playing static, a faded green couch, and not much else. There are stairs and a exit door though.", false, false);
+	AddExitToRoom(room4, "kitchen", 2, false, "none");
+	AddExitToRoom(room4, "exitdoor", 4, true, "coins");
+	AddExitToRoom(room4, "upstairs", 5, false, "none");
 	worldState.Rooms.push_back(room4);
+
+	// Index 4:
+	RoomData room5 = CreateRoom("exitdoor", "An exit with a coin counter on it.", false, false);
+	AddExitToRoom(room5, "livingroom", 3, false, "none");
+	worldState.Rooms.push_back(room5);
+
+	// Index 5:
+	RoomData room6 = CreateRoom("upstairs", "", false, false);
+	AddExitToRoom(room6, "livingroom", 3, false, "none");
+	AddExitToRoom(room6, "bathroom", 6, false, "none");
+	AddExitToRoom(room6, "bedroom", 7, false, "none");
+	worldState.Rooms.push_back(room6);
+
+	// Index 6:
+	RoomData room7 = CreateRoom("bathroom", "", false, true);
+	AddExitToRoom(room7, "upstairs", 5, false, "none");
+	worldState.Rooms.push_back(room7);
+
+	// Index 7:
+	RoomData room8 = CreateRoom("bedroom", "", false, true);
+	AddExitToRoom(room8, "upstairs", 5, false, "none");
+	worldState.Rooms.push_back(room8);
+
 }
 
 void GetInput(PlayerState& playerState, const WorldState& worldState)
@@ -57,7 +85,7 @@ void GetInput(PlayerState& playerState, const WorldState& worldState)
 	playerState.DesiredExit = "";
 	playerState.DesiredPickUp = "";
 
-	printf("What do you do? (Type 'help' for a list of commands.) \n");
+	printf("\n What do you do? (Type 'help' for a list of commands.) \n");
 	printf("> ");
 	TextAdventureCommand command = ParseAdventureCommand();
 	if (command.Verb == "quit")
@@ -66,7 +94,7 @@ void GetInput(PlayerState& playerState, const WorldState& worldState)
 	}
 	else if (command.Verb == "help")
 	{
-		printf("Command List: look, quit, go [place], get [item]\n");
+		printf("Command List: look, quit, go [place], get ['key' or 'coin']\n");
 	}
 	else if (command.Verb == "look")
 	{
@@ -100,6 +128,9 @@ void RenderGame(const PlayerState& playerState, const WorldState& worldState)
 		if (currentRoom.HasKey) {
 			printf("There is a key in this room! \n\n");
 		}
+		else if (currentRoom.HasCoin) {
+			printf("There is a coin in this room! \n\n");
+		}
 
 		printf("Exits: \n");
 		for (unsigned int i = 0; i < currentRoom.Exits.size(); ++i) {
@@ -108,10 +139,10 @@ void RenderGame(const PlayerState& playerState, const WorldState& worldState)
 
 		printf("\n");
 
-		if (playerState.HasKey == true ) {
+		if (playerState.HasKey == true or playerState.CoinCount > 0 ) {
 			printf("Inventory: \n");
 			printf("Key \n");
-
+			printf("Coins: %d",playerState.CoinCount);
 		}
 
 		//printf("Size of currentRoom Exit: %d \n ", currentRoom.Exits.size());
@@ -137,13 +168,33 @@ void UpdateGame(PlayerState& playerState, WorldState& worldState)
 					playerState.WantsToLook = true;
 				}
 				else {
-					if (playerState.HasKey) {
-						playerState.CurrentRoomIndex = currentRoom.Exits[i].TargetRoomIndex;
-						playerState.WantsToLook = true;
+					if (currentRoom.Exits[i].ItemNeededToUnlockDoor == "key") {
+						if (playerState.HasKey) {
+							playerState.CurrentRoomIndex = currentRoom.Exits[i].TargetRoomIndex;
+							playerState.WantsToLook = true;
+						}
+						else
+						{
+							printf("\n =====");
+							printf("\n This door is locked. Please find a key.");
+							printf("\n ===== \n");
+						}
 					}
-					else
-					{
-						printf("This door is locked. Please find a key. \n");
+					else if (currentRoom.Exits[i].ItemNeededToUnlockDoor == "coins") {
+						if (playerState.CoinCount >= 2 ) {
+							playerState.CurrentRoomIndex = currentRoom.Exits[i].TargetRoomIndex;
+							//playerState.WantsToLook = true;
+
+							// quit because this is the end of the game. the player wins!
+							printf("\n\n You escaped! Thanks for playing! \n\n");
+							playerState.WantsToExit = true;
+						}
+						else
+						{
+							printf("\n =====");
+							printf("\n This door is locked. Please find a 2 coins.");
+							printf("\n ===== \n");
+						}
 					}
 
 				}
@@ -167,6 +218,17 @@ void UpdateGame(PlayerState& playerState, WorldState& worldState)
 			}
 			else {
 				printf("There is no key in this room.  \n");
+			}
+		}
+		else if (playerState.DesiredPickUp == "coin") {
+			if (currentRoom.HasCoin == true) {
+				printf("You picked up a coin!");
+				printf("\n");
+				playerState.CoinCount += 1;
+				currentRoom.HasCoin = false;
+			}
+			else {
+				printf("There is no coin in this room.  \n");
 			}
 		}
 		else
